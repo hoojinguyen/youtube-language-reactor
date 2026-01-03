@@ -12,7 +12,7 @@ console.log('🎬 YouTube Language Reactor Lite: Content script loaded');
 class YouTubeLanguageReactor {
   private isInitialized = false;
   private currentVideoId: string | null = null;
-  private observer: MutationObserver | null = null;
+
 
   constructor() {
     this.init();
@@ -223,30 +223,31 @@ class YouTubeLanguageReactor {
    * Setup listener for YouTube's SPA navigation
    */
   private setupNavigationListener(): void {
-    // YouTube uses pushState for navigation
-    const originalPushState = history.pushState.bind(history);
-    history.pushState = (...args) => {
-      originalPushState(...args);
-      setTimeout(() => this.checkAndInitialize(), 1000);
-    };
-
-    // Also listen for popstate
-    window.addEventListener('popstate', () => {
-      setTimeout(() => this.checkAndInitialize(), 1000);
+    // Method 1: Listen for YouTube's custom navigation event
+    document.addEventListener('yt-navigate-finish', () => {
+      console.log('🔄 yt-navigate-finish detected');
+      setTimeout(() => this.checkAndInitialize(), 500);
     });
 
-    // Watch for URL changes via MutationObserver
-    this.observer = new MutationObserver(() => {
-      const newVideoId = subtitleExtractor.getVideoId();
-      if (newVideoId !== this.currentVideoId) {
+    // Method 2: Fallback - Watch title changes (highly reliable for SPA)
+    const titleObserver = new MutationObserver(() => {
+        // If title changes, it's likely a navigation
         this.checkAndInitialize();
-      }
     });
-
-    this.observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
+    
+    const titleElement = document.querySelector('title');
+    if (titleElement) {
+        titleObserver.observe(titleElement, { childList: true });
+    } else {
+        // If no title element yet, watch body for it
+        new MutationObserver((_mutations, observer) => {
+            const title = document.querySelector('title');
+            if (title) {
+                observer.disconnect();
+                titleObserver.observe(title, { childList: true });
+            }
+        }).observe(document.head, { childList: true });
+    }
   }
 
   /**

@@ -37,13 +37,21 @@ export class SubtitleExtractor {
             }
 
             // Try to get captions from ytInitialPlayerResponse
-            const playerResponse = this.getPlayerResponse();
+            let playerResponse = this.getPlayerResponse();
+
+            // If no player response found, or no captions in it, try fetching the page source
+            if (!playerResponse || !this.hasCaptions(playerResponse)) {
+                console.log('⚠️ Primary method failed, trying fallback fetch...');
+                playerResponse = await this.fetchPlayerResponseFallback(this.videoId);
+            }
+
             if (!playerResponse) {
                 throw new Error('Could not find player response');
             }
 
             const captionTracks = this.getCaptionTracks(playerResponse);
             if (!captionTracks || captionTracks.length === 0) {
+                console.warn('Captions object structure:', JSON.stringify(playerResponse.captions || 'None'));
                 throw new Error('No caption tracks available');
             }
 
@@ -90,9 +98,10 @@ export class SubtitleExtractor {
      * Get the YouTube player response object from the page
      */
     private getPlayerResponse(): PlayerResponse | null {
-        // Method 1: Try to get from window object
+        // Method 1: Try to get from window object (only works if not isolated, but worth checking)
         const win = window as WindowWithYT;
         if (win.ytInitialPlayerResponse) {
+            console.log('Found ytInitialPlayerResponse in window');
             return win.ytInitialPlayerResponse;
         }
 
@@ -101,11 +110,16 @@ export class SubtitleExtractor {
         for (const script of scripts) {
             const content = script.textContent || '';
             if (content.includes('ytInitialPlayerResponse')) {
-                const match = content.match(/ytInitialPlayerResponse\s*=\s*({.+?});/);
-                if (match) {
+                // Use [\s\S] to match newlines, look for the variable assignment
+                const match = content.match(/ytInitialPlayerResponse\s*=\s*({[\s\S]+?});/);
+                if (match && match[1]) {
                     try {
-                        return JSON.parse(match[1]);
-                    } catch {
+                        const json = JSON.parse(match[1]);
+                        if (json.captions) {
+                            console.log('✅ Valid player response found');
+                            return json;
+                        }
+                    } catch (e) {
                         continue;
                     }
                 }
@@ -117,6 +131,7 @@ export class SubtitleExtractor {
             return win.ytplayer.config.args.raw_player_response;
         }
 
+        console.warn('Could not find ytInitialPlayerResponse via any method');
         return null;
     }
 
@@ -215,6 +230,42 @@ export class SubtitleExtractor {
      */
     getSubtitles(): SubtitleSegment[] {
         return this.subtitles;
+    }
+
+    /**
+     * Check if player response has captions
+     */
+    private hasCaptions(response: PlayerResponse): boolean {
+        return !!response?.captions?.playerCaptionsTracklistRenderer?.captionTracks?.length;
+    }
+
+    /**
+     * Fallback: Fetch the video page to find ytInitialPlayerResponse
+     */
+    private async fetchPlayerResponseFallback(videoId: string): Promise<PlayerResponse | null> {
+        try {
+            console.log('🔄 Fetching video page for fallback extraction...');
+            const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`);
+            const text = await response.text();
+
+            // Look for ytInitialPlayerResponse in the fetched HTML
+            const match = text.match(/ytInitialPlayerResponse\s*=\s*({[\s\S]+?});/);
+            if (match && match[1]) {
+                try {
+                    const json = JSON.parse(match[1]);
+                    if (this.hasCaptions(json)) {
+                        console.log('✅ Fallback fetch found valid captions!');
+                        return json;
+                    }
+                } catch (e) {
+                    // ignore parse error
+                }
+            }
+            return null;
+        } catch (error) {
+            console.error('Fallback fetch failed:', error);
+            return null;
+        }
     }
 }
 
