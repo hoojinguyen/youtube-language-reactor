@@ -84,7 +84,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     subtitleFontSize: 18,
     subtitlePosition: 'bottom',
     overlayOpacity: 0.9,
-    apiEndpoint: 'http://localhost:5000',
+    apiEndpoint: 'http://localhost:5001',
 };
 
 /**

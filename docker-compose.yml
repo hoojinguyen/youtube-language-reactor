@@ -5,7 +5,7 @@ services:
     build: ./backend
     container_name: ylr-api
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - ./backend/data:/app/data
     environment:

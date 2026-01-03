@@ -26,7 +26,6 @@
     {
       "matches": ["*://www.youtube.com/*", "*://youtube.com/*"],
       "js": ["src/content/index.tsx"],
-      "css": ["src/content/content.css"],
       "run_at": "document_idle"
     }
   ],
@@ -39,7 +38,7 @@
   "host_permissions": [
     "*://www.youtube.com/*",
     "*://youtube.com/*",
-    "http://localhost:5000/*"
+    "http://localhost:5001/*"
   ],
   "web_accessible_resources": [
     {
