@@ -8,117 +8,26 @@ from app.database import get_db
 
 router = APIRouter()
 
-# Simple translation dictionary for demo purposes
-# In production, integrate with Google Translate, DeepL, or LibreTranslate
-DEMO_TRANSLATIONS = {
-    # Common English words to Vietnamese
-    "hello": "xin chào",
-    "world": "thế giới",
-    "thank": "cảm ơn",
-    "thanks": "cảm ơn",
-    "you": "bạn",
-    "love": "yêu",
-    "friend": "bạn bè",
-    "good": "tốt",
-    "bad": "xấu",
-    "yes": "vâng",
-    "no": "không",
-    "please": "làm ơn",
-    "sorry": "xin lỗi",
-    "help": "giúp đỡ",
-    "time": "thời gian",
-    "day": "ngày",
-    "night": "đêm",
-    "water": "nước",
-    "food": "thức ăn",
-    "house": "nhà",
-    "work": "công việc",
-    "school": "trường học",
-    "book": "sách",
-    "learn": "học",
-    "speak": "nói",
-    "listen": "nghe",
-    "read": "đọc",
-    "write": "viết",
-    "understand": "hiểu",
-    "know": "biết",
-    "think": "nghĩ",
-    "want": "muốn",
-    "need": "cần",
-    "like": "thích",
-    "see": "thấy",
-    "come": "đến",
-    "go": "đi",
-    "make": "làm",
-    "take": "lấy",
-    "give": "cho",
-    "find": "tìm",
-    "tell": "kể",
-    "ask": "hỏi",
-    "use": "dùng",
-    "feel": "cảm thấy",
-    "try": "thử",
-    "leave": "rời",
-    "call": "gọi",
-    "keep": "giữ",
-    "let": "để",
-    "begin": "bắt đầu",
-    "seem": "dường như",
-    "show": "cho xem",
-    "hear": "nghe",
-    "play": "chơi",
-    "run": "chạy",
-    "move": "di chuyển",
-    "live": "sống",
-    "believe": "tin",
-    "hold": "giữ",
-    "bring": "mang",
-    "happen": "xảy ra",
-    "write": "viết",
-    "provide": "cung cấp",
-    "sit": "ngồi",
-    "stand": "đứng",
-    "lose": "mất",
-    "pay": "trả",
-    "meet": "gặp",
-    "include": "bao gồm",
-    "continue": "tiếp tục",
-    "set": "đặt",
-    "learn": "học",
-    "change": "thay đổi",
-    "lead": "dẫn",
-    "understand": "hiểu",
-    "watch": "xem",
-    "follow": "theo",
-    "stop": "dừng",
-    "create": "tạo",
-    "speak": "nói",
-    "read": "đọc",
-    "allow": "cho phép",
-    "add": "thêm",
-    "spend": "tiêu",
-    "grow": "lớn lên",
-    "open": "mở",
-    "walk": "đi bộ",
-    "win": "thắng",
-    "offer": "đề nghị",
-    "remember": "nhớ",
-    "consider": "xem xét",
-    "appear": "xuất hiện",
-    "buy": "mua",
-    "wait": "đợi",
-    "serve": "phục vụ",
-    "die": "chết",
-    "send": "gửi",
-    "expect": "mong đợi",
-    "build": "xây dựng",
-    "stay": "ở lại",
-    "fall": "rơi",
-    "cut": "cắt",
-    "reach": "đạt",
-    "kill": "giết",
-    "remain": "còn lại",
-}
+from deep_translator import GoogleTranslator
+
+# Initialize translator
+# We'll instantiate it per request or cached based on source/target pair
+
+def translate_word(word: str, source_language: str = "en", target_language: str = "vi") -> str:
+    """
+    Translate a word using Google Translate via deep-translator.
+    """
+    word_clean = word.strip()
+    if not word_clean:
+        return ""
+        
+    try:
+        translator = GoogleTranslator(source=source_language, target=target_language)
+        translation = translator.translate(word_clean)
+        return translation
+    except Exception as e:
+        print(f"Translation error: {e}")
+        return f"[{word}]" # Fallback on error
 
 
 def get_cached_translation(word: str, target_language: str) -> str | None:
@@ -150,21 +59,6 @@ def cache_translation(word: str, translation: str, source_language: str, target_
         )
 
 
-def translate_word(word: str, target_language: str = "vi") -> str:
-    """
-    Translate a word using the demo dictionary.
-    In production, replace this with a real translation API.
-    """
-    word_lower = word.lower().strip()
-    
-    # Check demo dictionary
-    if word_lower in DEMO_TRANSLATIONS:
-        return DEMO_TRANSLATIONS[word_lower]
-    
-    # Return placeholder for unknown words
-    return f"[{word}]"
-
-
 @router.post("/translate", response_model=TranslationResponse)
 async def translate(request: TranslationRequest):
     """
@@ -187,7 +81,7 @@ async def translate(request: TranslationRequest):
         )
     
     # Translate
-    translation = translate_word(word, request.target_language)
+    translation = translate_word(word, request.source_language, request.target_language)
     
     # Cache the result if it's a real translation (not a placeholder)
     if not translation.startswith("["):
