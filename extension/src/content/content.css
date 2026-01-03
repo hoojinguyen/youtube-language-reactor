@@ -1,0 +1,276 @@
+/* ============================================
+   YouTube Language Reactor Lite - Content Styles
+   ============================================ */
+
+/* Root container for the overlay */
+.ylr-overlay-root {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Subtitle container */
+.ylr-subtitle-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90%;
+  padding: 8px 16px;
+}
+
+/* Subtitle line */
+.ylr-subtitle-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(20, 20, 30, 0.9) 100%
+  );
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  pointer-events: auto;
+}
+
+/* Individual word styling */
+.ylr-word {
+  font-size: 20px;
+  font-weight: 500;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.ylr-word:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.ylr-word-hovered {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Translation tooltip */
+.ylr-tooltip {
+  position: fixed;
+  z-index: 10001;
+  pointer-events: none;
+  animation: ylr-tooltip-appear 0.2s ease;
+}
+
+@keyframes ylr-tooltip-appear {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -90%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%);
+  }
+}
+
+.ylr-tooltip-content {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 30, 45, 0.98) 0%,
+    rgba(20, 20, 35, 0.98) 100%
+  );
+  border-radius: 12px;
+  padding: 12px 16px;
+  min-width: 140px;
+  max-width: 280px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+}
+
+.ylr-tooltip-word {
+  font-size: 14px;
+  font-weight: 600;
+  color: #a5b4fc;
+  margin-bottom: 4px;
+  text-transform: lowercase;
+}
+
+.ylr-tooltip-translation {
+  font-size: 16px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.ylr-tooltip-pronunciation {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.ylr-tooltip-hint {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+/* Save feedback animation */
+.ylr-word-saved {
+  animation: ylr-saved-pulse 0.5s ease;
+}
+
+@keyframes ylr-saved-pulse {
+  0% {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    background: transparent;
+    transform: scale(1);
+  }
+}
+
+/* Loading state */
+.ylr-loading {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: ylr-spin 0.8s linear infinite;
+}
+
+@keyframes ylr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Toggle button (injected near player controls) */
+.ylr-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.ylr-toggle-btn:hover {
+  opacity: 1;
+}
+
+.ylr-toggle-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: #ffffff;
+}
+
+.ylr-toggle-btn.ylr-disabled svg {
+  fill: #64748b;
+}
+
+/* Notification toast */
+.ylr-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.95) 0%,
+    rgba(22, 163, 74, 0.95) 100%
+  );
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 10002;
+  animation: ylr-toast-appear 0.3s ease, ylr-toast-disappear 0.3s ease 2.7s forwards;
+}
+
+@keyframes ylr-toast-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes ylr-toast-disappear {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ylr-subtitle-line {
+    padding: 8px 12px;
+    gap: 4px;
+  }
+
+  .ylr-word {
+    font-size: 16px;
+    padding: 1px 3px;
+  }
+
+  .ylr-tooltip-content {
+    min-width: 120px;
+    max-width: 200px;
+    padding: 10px 12px;
+  }
+}
+
+/* Fullscreen mode adjustments */
+:fullscreen .ylr-overlay-root,
+:-webkit-full-screen .ylr-overlay-root {
+  bottom: 80px;
+}
+
+:fullscreen .ylr-word,
+:-webkit-full-screen .ylr-word {
+  font-size: 24px;
+}

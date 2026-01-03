@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Language Reactor Lite",
+  "version": "1.0.0",
+  "description": "Learn languages effectively by watching YouTube videos with interactive subtitles, hover-to-translate, and vocabulary management.",
+  "author": "Your Name",
+  "icons": {
+    "16": "images/icon-16.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon-16.png",
+      "48": "images/icon-48.png",
+      "128": "images/icon-128.png"
+    },
+    "default_title": "YouTube Language Reactor Lite"
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.ts",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*", "*://youtube.com/*"],
+      "js": ["src/content/index.tsx"],
+      "css": ["src/content/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs"
+  ],
+  "host_permissions": [
+    "*://www.youtube.com/*",
+    "*://youtube.com/*",
+    "http://localhost:5000/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["images/*"],
+      "matches": ["*://www.youtube.com/*"]
+    }
+  ]
+}

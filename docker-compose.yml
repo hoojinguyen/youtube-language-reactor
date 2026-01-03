@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./backend
+    container_name: ylr-api
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend/data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  vocabulary-data:
